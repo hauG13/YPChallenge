@@ -21,6 +21,9 @@ import twitter4j.TwitterFactory;
  */
 public class TwitterBot {
 
+    //Will search for following hashtag
+    private final static String SEARCH = "#haugilles";
+
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private long latestID;
 
@@ -43,27 +46,33 @@ public class TwitterBot {
         for (;;) {
 
             try {
-                
+
                 try {
-                    Query query = new Query("\"#haugilles\"");
-                    
+                    log.debug("Start querying results");
+
+                    Query query = new Query("\"" + SEARCH + "\"");
                     QueryResult result = twitter.search(query);
-                    
+
                     for (Status tweet : result.getTweets()) {
+                        log.info("Processing result for: " + tweet.getUser().getName());
+                        
                         if (tweet.getId() > latestID) {
-                            twitter.updateStatus("@" + tweet.getUser().getScreenName() + "HEllo again");
+                            twitter.updateStatus("@" + tweet.getUser().getScreenName() + " Hello again 2");
                             latestID = tweet.getId();
+                            log.info("Tweeted at: " + tweet.getId() + " " + tweet.getUser().getScreenName());
                         }
-                        log.info(tweet.getId() + tweet.getUser().getScreenName());
                     }
 
-                    //Status status = twitter.updateStatus("Hello Hau Gilles");
+                    log.info("Finished processing results");
+                    
                 } catch (TwitterException ex) {
-                    log.error("Connection failed.");
+                    //May be caused by a repeated tweet.
+                    log.error("Something went wrong.");
                 }
                 
-                Thread.sleep(1000*60*5);
-                
+                log.info("Thread will sleep for 5 minutes.");
+                Thread.sleep(1000 * 60 * 1);
+
             } catch (InterruptedException ex) {
                 java.util.logging.Logger.getLogger(TwitterBot.class.getName()).log(Level.SEVERE, null, ex);
             }
