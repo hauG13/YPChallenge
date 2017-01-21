@@ -5,18 +5,157 @@
     <artifactId>YPChallenge</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     
-       <dependencies>
-      <dependency>
-           <groupId>org.twitter4j</groupId>
-           <artifactId>twitter4j-core</artifactId>
-           <version>[4.0,)</version>
-       </dependency>
+    <developers>
+        <developer>
+            <name>Danieil Skrinikov</name>
+            <email>skrinikovd@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Uen Yi Hung</name>
+            <email>uenyihung@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Hau Gilles Che</name>
+            <email>haugillesche@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Thai-Vu Nguyen</name>
+            <email>thaivu22@gmail.com</email>
+        </developer>
+    </developers>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.twitter4j</groupId>
+            <artifactId>twitter4j-core</artifactId>
+            <version>[4.0,)</version>
+        </dependency>
+       
+        <!-- The dependency for the SLF4J Facade -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+        <!-- Binding for Log4J -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.6.2</version>
+        </dependency>
+        <!-- Logging Framework Dependency Uses the log4j2 library -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.6.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.6.2</version>
+        </dependency>
+        <!-- JUnit 4 testing dependency -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <!-- only to be used during test phase will not be included in executable
+            jar -->
+            <scope>test</scope>
+        </dependency>
       
-   </dependencies>
+    </dependencies>
+   
+    <build>
+        <!-- Goals may be set in the IDE or the pom IDE or CLI goals override the
+        defaultGoal -->
+        <defaultGoal>clean compile package exec:java</defaultGoal>
+        <!-- Plugins define components that perform actions -->
+        <plugins>
+            <!-- Compiler: Select the version of the Java compiler and any command
+            line switches to use with it -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <!-- Java version of the source files -->
+                    <source>1.8</source>
+                    <!-- Java version of the class files -->
+                    <target>1.8</target>
+                    <!-- sometimes the IDE does not reveal all the important warnings -->
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <!-- Shade: Create an executable jar containing all the dependencies when
+            the package goal is carried out -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                    <transformers>
+                        <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>${mainClass}</mainClass>
+                        </transformer>
+                    </transformers>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Exec: Executes the program -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <goals>
+                            <!-- Runs in separate instance of JVM -->
+                            <goal>exec</goal>
+                            <!-- Runs in same instance of JVM as Eclipse -->
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <!--used by java goal -->
+                            <!--executes in the same VM that Maven runs in -->
+                            <mainClass>${mainClass}</mainClass>
+                            <!--used by exec goal -->
+                            <!--runs in a separate VM from the one that Maven runs in -->
+                            <executable>${java.home}/bin/java</executable>
+                            <commandlineArgs>-jar ${project.build.directory}/${project.build.finalName}.jar</commandlineArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Surefire: During the test phase of the build life cycle executes
+            JUnit tests and write the results to an xml and txt file -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <!-- Turn on tests: false, Turn off tests: true -->
+                <configuration>
+                    <skipTests>false</skipTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
