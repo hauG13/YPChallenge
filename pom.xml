@@ -69,6 +69,14 @@
             jar -->
             <scope>test</scope>
         </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp -->
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+
       
     </dependencies>
    
