@@ -1,5 +1,6 @@
 package com.teamdawson.ypchallenge;
 
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import twitter4j.Query;
@@ -38,21 +39,34 @@ public class TwitterBot {
         //Handle to twitter API
         Twitter twitter = TwitterFactory.getSingleton();
 
-        try {
-            Query query = new Query("\"#haugilles\"");
+        //Infinite loop. Meant to run as long as this bot exists.
+        for (;;) {
 
-            QueryResult result = twitter.search(query);
+            try {
+                
+                try {
+                    Query query = new Query("\"#haugilles\"");
+                    
+                    QueryResult result = twitter.search(query);
+                    
+                    for (Status tweet : result.getTweets()) {
+                        if (tweet.getId() > latestID) {
+                            twitter.updateStatus("@" + tweet.getUser().getScreenName() + "HEllo again");
+                            latestID = tweet.getId();
+                        }
+                        log.info(tweet.getId() + tweet.getUser().getScreenName());
+                    }
 
-            for (Status tweet : result.getTweets()) {
-                if (tweet.getId() != latestID) {
-                    twitter.updateStatus("@" + tweet.getUser().getScreenName() + " test.");
+                    //Status status = twitter.updateStatus("Hello Hau Gilles");
+                } catch (TwitterException ex) {
+                    log.error("Connection failed.");
                 }
-                log.info(tweet.getId() + "");
+                
+                Thread.sleep(1000*60*5);
+                
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(TwitterBot.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-            //Status status = twitter.updateStatus("Hello Hau Gilles");
-        } catch (TwitterException ex) {
-            log.error("Connection failed.");
         }
     }
 }
