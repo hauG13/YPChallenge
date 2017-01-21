@@ -7,5 +7,5 @@ package com.teamdawson.ypchallenge;
  * @since
  */
 public class SalesAPI {
-
+    
 }
