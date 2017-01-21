@@ -6,6 +6,6 @@ package com.teamdawson.ypchallenge;
  * @version 0.0.01
  * @since
  */
-public class SalesAPI {
+public class Deals {
     
 }
