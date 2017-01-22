@@ -38,10 +38,10 @@ public class MerchantSearcher {
         
         Merchant merchant = null;
         
-        //merchant = MerchantDealsLookUp.getCloserDeal(latitude, longitude, keyword);
+        merchant = MerchantDealsLookUp.getClosestDeal(latitude, longitude, keyword);
         
         if (merchant == null){
-            //TODO, wait for Cindy for nearest no deal Merchant
+            merchant = MerchantDealsLookUp.getClosestStore(latitude, longitude, keyword);
         }
         
         return merchant;
