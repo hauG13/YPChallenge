@@ -62,6 +62,7 @@ public class Interpreter {
             }
 
         }
+        System.out.println(keywords);
         return keywords;
     }
 

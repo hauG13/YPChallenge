@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import twitter4j.GeoLocation;
+import twitter4j.Place;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
+import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -55,25 +58,43 @@ public class TwitterBot {
                     QueryResult result = twitter.search(query);
 
                     for (Status tweet : result.getTweets()) {
-                        log.info("Processing result for: " + tweet.getUser().getName());
+                        //log.info("Processing result for: " + tweet.getUser().getName());
                         
                         if (tweet.getId() > latestID) {
+                            log.info("Processing result for: " + tweet.getUser().getName());
                             Merchant merchant = null;
                             
                             if(tweet.getGeoLocation() != null){
+                                log.info("Entered GEO");
+                                
                                 List<String> keywords = Interpreter.retrieveKeyword(tweet.getText());
                                 MerchantSearcher searcher = new MerchantSearcher();
                                 merchant = searcher.search(tweet.getGeoLocation().getLatitude(), tweet.getGeoLocation().getLongitude(), keywords.get(0));
+                                
+                                StatusUpdate su = new StatusUpdate("Hey @"+tweet.getUser().getScreenName()+" You might want to check out\n"+merchant.getStore()+" for: "+keywords.get(0)+merchant.getDeal_link());
+                                Status status = twitter.updateStatus(su);
+                                log.debug(status.getText());
+                            }
+                            else if(tweet.getPlace() != null){
+                                //No Geolocation. Yes Place
+                                
+                                Place p = tweet.getPlace();
+                                if(p == null)
+                                    log.error("Place is null");
+                                else{
+                                    p.getName();
+                                }
                             }
                             else{
-                                //No Geolocation.
-                                
+                                //No location. Must retweet.
+                                StatusUpdate su = new StatusUpdate("@"+tweet.getUser().getScreenName()+" We could not find your location. Please reply us with it.");
+                                su.inReplyToStatusId(tweet.getId());
+                                twitter.updateStatus(su);
                             }
                             
-                                
-                            twitter.updateStatus("@" + tweet.getUser().getScreenName() + "");
                             latestID = tweet.getId();
                             log.info("Tweeted at: " + tweet.getId() + " " + tweet.getUser().getScreenName());
+                            
                             
                         }
                     }
@@ -85,7 +106,7 @@ public class TwitterBot {
                     log.error("Something went wrong.");
                 }
                 
-                log.info("Thread will sleep for 5 minutes.");
+                log.info("Thread will sleep for 1 minutes.");
                 Thread.sleep(1000 * 60 * 1);
 
             } catch (InterruptedException ex) {
