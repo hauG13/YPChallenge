@@ -1,5 +1,6 @@
 package com.teamdawson.ypchallenge;
 
+import java.util.List;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,20 @@ public class TwitterBot {
                         log.info("Processing result for: " + tweet.getUser().getName());
                         
                         if (tweet.getId() > latestID) {
-                            twitter.updateStatus("@" + tweet.getUser().getScreenName() + " Hello again 2");
+                            Merchant merchant = null;
+                            
+                            if(tweet.getGeoLocation() != null){
+                                List<String> keywords = Interpreter.retrieveKeyword(tweet.getText());
+                                MerchantSearcher searcher = new MerchantSearcher();
+                                merchant = searcher.search(tweet.getGeoLocation().getLatitude(), tweet.getGeoLocation().getLongitude(), keywords.get(0));
+                            }
+                            else{
+                                //No Geolocation.
+                                
+                            }
+                            
+                                
+                            twitter.updateStatus("@" + tweet.getUser().getScreenName() + "");
                             latestID = tweet.getId();
                             log.info("Tweeted at: " + tweet.getId() + " " + tweet.getUser().getScreenName());
                             
