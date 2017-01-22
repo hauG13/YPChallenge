@@ -12,10 +12,17 @@ import java.util.List;
  */
 public class Interpreter {
 
-    public static void main(String[] args) {
-
-    }
-
+    
+//    public static void main(String[]args){
+//        System.out.println(Interpreter.retrieveKeyword("I want Louis Vuitton shoes. #askYP"));
+//    }
+    
+    
+    /**
+     * Retrieves keywords used used to search products from a text.
+     * @param text String containing sentence(s) to retrieve keywords from.
+     * @return A list of keywords.
+     */
     public static List<String> retrieveKeyword(String text) {
         String regexNouns = "NN[P]?[S]?";
         String regexPrep = "\\bIN\\b|\\bVBD\\b|\\bPOS\\b";
@@ -37,11 +44,15 @@ public class Interpreter {
             List<String> posTags = sentence.posTags();
 
             String temp = "";
+            String element = "";
 
             for (int i = 0; i < posTags.size(); i++) {
-                if (posTags.get(i).matches(regexNouns) || posTags.get(i).matches(regexPrep)) {
-                    if (posTags.get(i).matches(regexNouns)) {
-                        if (posTags.get(i).equals("PERSON") && words.get(i - 1)
+                //holds current element of the posTags list.
+                element = posTags.get(i);
+
+                if (isNounOrPreposition(element)) {
+                    if (element.matches(regexNouns)) {
+                        if (element.equals("PERSON") && words.get(i - 1)
                                 .equalsIgnoreCase("for")) {
                             keywords.add(temp);
                             temp = "";
@@ -57,12 +68,39 @@ public class Interpreter {
                         temp = "";
                     }
                 }
-
-                //return keywords;
             }
-
         }
         return keywords;
+    }
+    
+    /**
+     * Checks if the inputted words are a person, or a for.
+     * @param element String element to check if it is a person.
+     * @param wordElement String element to check if it is a for (preposition).
+     * @return true if both variables matches Person and for, false otherwise.
+     */
+    /*
+    private static boolean isPersonAndFor(String element, String wordElement){
+        return element.equals("PERSON") && wordElement.equalsIgnoreCase("for");
+    }*/
+    
+    /**
+     * Checks if the inputted word is a noun or a preposition.
+     * @param element word to be analyzed.
+     * @return true if the word is either a noun or a preposition,
+     * false otherwise.
+     */
+    private static boolean isNounOrPreposition(String element){
+        //regex expression matching POS codes for nouns and proper nouns
+        String regexNouns = "NN[P]?[S]?";
+        //regex expression matching POS codes for prepositions
+        String regexPrep = "\\bIN\\b|\\bVBD\\b|\\bPOS\\b";
+        
+        if(element.matches(regexNouns) || element.matches(regexPrep)){
+            return true;
+        }
+        
+        return false;
     }
 
 }
