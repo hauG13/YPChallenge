@@ -23,7 +23,7 @@ public class MerchantSearcher {
      * @param keyword String
      * @return Merchant
      */
-    public Merchant search(long latitude, long longitude, String keyword) 
+    public Merchant search(double latitude, double longitude, String keyword) 
                                 throws IllegalArgumentException{
         if (latitude < -90 || latitude > 90)
             throw new IllegalArgumentException();
@@ -38,10 +38,10 @@ public class MerchantSearcher {
         
         Merchant merchant = null;
         
-        //merchant = MerchantDealsLookUp.getCloserDeal(latitude, longitude, keyword);
+        merchant = MerchantDealsLookUp.getClosestDeal(latitude, longitude, keyword);
         
         if (merchant == null){
-            //TODO, wait for Cindy for nearest no deal Merchant
+            merchant = MerchantDealsLookUp.getClosestStore(latitude, longitude, keyword);
         }
         
         return merchant;
