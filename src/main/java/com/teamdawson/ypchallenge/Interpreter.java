@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Helper class used to interpret text in order to retrieve
+ * important information from it.
  * @author Danieil Skrinikov
  * @author Hau Gilles Che
  * @version 0.0.01
