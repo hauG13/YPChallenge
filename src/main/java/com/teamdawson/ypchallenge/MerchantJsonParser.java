@@ -23,7 +23,7 @@ public class MerchantJsonParser {
      * @param json
      * @return 
      */
-    public static Merchant parseNearestStoreJson(String json){
+    public static Merchant parseNearestDealJson(String json){
         Merchant merchant = null;
         
         JsonParser parser = Json.createParser(new StringReader(json));
