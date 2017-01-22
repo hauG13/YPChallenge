@@ -15,10 +15,10 @@ public class TwitterBotApp {
      * @param args Should not be used. 
      */
     public static void main(String[] args){
-        //TwitterBot bot = new TwitterBot();
-        //bot.run();
+        TwitterBot bot = new TwitterBot();
+        bot.run();
         
-        Merchant merchant = MerchantDealsLookUp.getClosestDeal(45.4952, -73.5788, "book");
-        System.out.println("The merchant is: " + merchant.getStore());
+        //Merchant merchant = MerchantDealsLookUp.getClosestDeal(45.4952, -73.5788, "book");
+        //System.out.println("The merchant is: " + merchant.getStore());
     }
 }

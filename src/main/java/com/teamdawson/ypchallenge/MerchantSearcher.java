@@ -23,7 +23,7 @@ public class MerchantSearcher {
      * @param keyword String
      * @return Merchant
      */
-    public Merchant search(long latitude, long longitude, String keyword) 
+    public Merchant search(double latitude, double longitude, String keyword) 
                                 throws IllegalArgumentException{
         if (latitude < -90 || latitude > 90)
             throw new IllegalArgumentException();
