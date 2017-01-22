@@ -7,6 +7,7 @@ import java.util.List;
 /**
  *
  * @author Danieil Skrinikov
+ * @author Hau Gilles Che
  * @version 0.0.01
  * @since
  */
