@@ -136,65 +136,74 @@ public class MerchantDealsLookUp {
 
         return result;
     }
-    
+
+    private static HttpURLConnection preparePostRequest(String urlString) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+        return conn;
+    }
+
+    private static String preparePostBody(double latitude, double longitude, String keyword) {
+        String requestString = "{ \"search\":[{ "
+                + "\"searchType\":\"PROXIMITY\", "
+                + "\"collection\":\"MERCHANT\", "
+                + "\"what\": \"" + keyword + "\", "
+                + "\"where\":{ "
+                + "\"type\":\"GEO\", "
+                + "\"value\":\"" + latitude + "," + longitude + "\" } "
+                + "}]}";
+
+        return requestString;
+    }
+
     /**
-     * 
+     *
      * Get the closest Merchant that has no deals on the key item
-     * 
+     *
      * @param latitude long
      * @param longitude long
      * @param keyword String
      * @return Merchant object
      */
-    public static Merchant getClosestStore(double latitude, double longitude, String keyword){
+    public static Merchant getClosestStore(double latitude, double longitude, String keyword) {
         Merchant result = null;
         String urlPost = "http://hackaton.ypcloud.io/search";
-        
-        try{
-            URL url = new URL(urlPost);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-            String requestString = "{ \"search\":[{ " +
-            "\"searchType\":\"PROXIMITY\", " +
-            "\"collection\":\"MERCHANT\", " +
-            "\"what\": \""+ keyword + "\", " +
-            "\"where\":{ " +
-            "\"type\":\"GEO\", " +
-            "\"value\":\"" + latitude + ","+ longitude + "\" } " +
-            "}]}";
-            
-            OutputStream out = conn.getOutputStream();
-            out.write(requestString.getBytes());
-            out.close();
-            
+
+        try {
+            HttpURLConnection conn = preparePostRequest(urlPost);
+
+            String requestString = preparePostBody(latitude, longitude, keyword);
+
+            try (OutputStream out = conn.getOutputStream()) {
+                out.write(requestString.getBytes());
+            }
+
             int responseCode = conn.getResponseCode();
-            
-            JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()));
-            
-            JSONObject obj = new JSONObject(reader.readObject().toString());
-            log.debug(obj.toString());
-            
-            JSONObject data = obj.getJSONArray("searchResult")
-                    .getJSONObject(0).getJSONArray("merchants").getJSONObject(0);
-            
-            
-            result = new Merchant();
-            result.setStore(data.getString("businessName"));
-            reader.close();
-            
+            if (responseCode == 200) {
+                try (JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()))) {
+                    JSONObject obj = new JSONObject(reader.readObject().toString());
+                    log.debug(obj.toString());
+
+                    JSONObject data = obj.getJSONArray("searchResult")
+                            .getJSONObject(0).getJSONArray("merchants").getJSONObject(0);
+
+                    result = new Merchant();
+                    result.setStore(data.getString("businessName"));
+                }
+            }
             log.debug("result merchant " + result.getStore());
-           
-            
-        }catch (IOException ioe) {
+
+        } catch (IOException ioe) {
             log.debug("getClosesStore failed: " + ioe.getMessage());
         } catch (JSONException ex) {
             java.util.logging.Logger.getLogger(MerchantDealsLookUp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return result;
     }
-    
+
 }
