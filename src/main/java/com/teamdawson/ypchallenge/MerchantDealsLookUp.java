@@ -22,7 +22,7 @@ import twitter4j.JSONObject;
  * @since January 21st, 2017
  */
 public class MerchantDealsLookUp {
-    
+
     private static Logger log = LoggerFactory.getLogger("MerchantDealsLookUp");
 
     /**
@@ -43,47 +43,41 @@ public class MerchantDealsLookUp {
      */
     public static Merchant getClosestDeal(double latitude, double longitude, String keyword) {
         Merchant result = null;
-        
+
         int keywordID = getKeywordID(keyword);
-        
+
         log.debug("keyword id is: " + keywordID);
-        
+
         if (keywordID == -1) {
             return null;
         }
-        
+
         String dealURL = "http://dcr.yp.ca/api/search/popular?latitude=" + latitude + "&longitude=" + longitude + "&no_nationals=true&radius=5&tags_list[]=" + keywordID;
-        
+
         try {
-            URL url = new URL(dealURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            
-            int responseCode = conn.getResponseCode();
-            
-            JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()));
-            JSONObject obj = new JSONObject(reader.readObject().toString());
-            
-            JSONObject data = obj.getJSONArray("data").getJSONObject(0).getJSONObject("result");
+            JSONArray dataArray = getJSONData(dealURL, "GET");
+
+            if (dataArray.length() < 1) {
+                log.debug("No result.");
+                return null;
+            }
+
+            JSONObject data = dataArray.getJSONObject(0).getJSONObject("result");
             JSONObject english = data.getJSONObject("Translation").getJSONObject("en");
-            
+
             result = new Merchant();
             result.setDeal_text(english.getString("short_title"));
             result.setDeal_link(english.getString("url"));
-            
-            String name = data.getJSONArray("Merchant").getJSONObject(0).getJSONObject("Translation").getJSONObject("en").getString("name");
+
+            String name = data.getJSONArray("Merchants").getJSONObject(0).getJSONObject("Translation").getJSONObject("en").getString("name");
             result.setStore(name);
-            
-            reader.close();
-            
+
         } catch (IOException ioe) {
             log.debug("getClosesDeal failed: " + ioe.getMessage());
         } catch (JSONException ex) {
             java.util.logging.Logger.getLogger(MerchantDealsLookUp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return result;
     }
 
@@ -98,37 +92,47 @@ public class MerchantDealsLookUp {
     private static int getKeywordID(String keyword) {
         int result = -1;
         String keywordURL = "http://api.redflagdeals.com/api/tags/search/" + keyword;
-        
+
         try {
-            URL url = new URL(keywordURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            
-            int responseCode = conn.getResponseCode();
-            
-            JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()));
-            JSONObject obj = new JSONObject(reader.readObject().toString());
-            
-            JSONArray array = obj.getJSONArray("data");
-            
-            for (int i = 0; i < array.length(); i++) {
-                log.debug(array.getString(i) + "\n");
-                JSONObject sub = new JSONObject(array.getString(i)).getJSONObject("Translation").getJSONObject("en");
-                if (sub.get("slug").toString().equalsIgnoreCase(keyword)) {
+            JSONArray dataArray = getJSONData(keywordURL, "GET");
+
+            for (int i = 0; i < dataArray.length(); i++) {
+                JSONObject sub = new JSONObject(dataArray.getString(i)).getJSONObject("Translation").getJSONObject("en");
+
+                String regex = keyword + ".?";
+                if (sub.get("slug").toString().matches(regex)) {
                     result = Integer.parseInt(sub.getString("id"));
                 }
             }
-            
-            reader.close();
-            
+
         } catch (IOException ioe) {
             log.debug("getClosesDeal failed: " + ioe.getMessage());
         } catch (JSONException ex) {
             java.util.logging.Logger.getLogger(MerchantDealsLookUp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
+        return result;
+    }
+
+    private static JSONArray getJSONData(String urlString, String method) throws JSONException, IOException {
+        JSONArray result = null;
+
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod(method);
+        conn.setRequestProperty("Content-Type", "application/json");
+
+        int responseCode = conn.getResponseCode();
+
+        if (responseCode == 200) {
+            JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()));
+            JSONObject obj = new JSONObject(reader.readObject().toString());
+
+            result = obj.getJSONArray("data");
+            reader.close();
+        }
+
         return result;
     }
 }

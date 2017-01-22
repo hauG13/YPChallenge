@@ -18,6 +18,7 @@ public class TwitterBotApp {
         //TwitterBot bot = new TwitterBot();
         //bot.run();
         
-        MerchantDealsLookUp.getClosestDeal(45.4952, -73.5788, "books");
+        Merchant merchant = MerchantDealsLookUp.getClosestDeal(45.4952, -73.5788, "book");
+        System.out.println("The merchant is: " + merchant.getStore());
     }
 }
