@@ -17,6 +17,7 @@ public class Merchant {
     private String store;
     private String deal_text;
     private String deal_link;
+
     
     /**
      * Default Constructor
