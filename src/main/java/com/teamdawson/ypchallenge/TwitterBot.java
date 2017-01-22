@@ -57,8 +57,11 @@ public class TwitterBot {
                         log.info("Processing result for: " + tweet.getUser().getName());
                         
                         if (tweet.getId() > latestID) {
-                            twitter.updateStatus("@" + tweet.getUser().getScreenName() + " Hello again 2");
+                                log.debug(tweet.getGeoLocation().toString());
+                            Merchant merchant = MerchantDealsLookUp.getClosestDeal(tweet.getGeoLocation().getLatitude(), tweet.getGeoLocation().getLongitude(), "book");
+                            twitter.updateStatus("@" + tweet.getUser().getScreenName() + " " + merchant.getStore() + " " + merchant.getDeal_text() + " " + merchant.getDeal_link());
                             latestID = tweet.getId();
+                            
                             log.info("Tweeted at: " + tweet.getId() + " " + tweet.getUser().getScreenName());
                         }
                     }
