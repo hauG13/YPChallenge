@@ -1,12 +1,18 @@
 package com.teamdawson.ypchallenge;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.logging.Level;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import twitter4j.JSONArray;
+import twitter4j.JSONException;
+import twitter4j.JSONObject;
 
 /**
  * Class that contains static method that will query either YellowPage or
@@ -17,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * @since January 21st, 2017
  */
 public class MerchantDealsLookUp {
-    
+
     private static Logger log = LoggerFactory.getLogger("MerchantDealsLookUp");
 
     /**
@@ -27,8 +33,8 @@ public class MerchantDealsLookUp {
     }
 
     /**
-     * Tries to get a deal of a merchant that is within 5km of current
-     * location by querying YellowPage.
+     * Tries to get a deal of a merchant that is within 5km of current location
+     * by querying YellowPage.
      *
      * @param latitude
      * @param longitude
@@ -38,9 +44,9 @@ public class MerchantDealsLookUp {
      */
     public static String getClosestDeal(double latitude, double longitude, String keyword) {
         String result = null;
-        
+
         int keywordID = getKeywordID(keyword);
-        
+        /*
         if (keywordID != -1) {
             return null;
         }
@@ -60,15 +66,15 @@ public class MerchantDealsLookUp {
             
             String data;
             while ((data = in.readLine()) != null) {
-                log.debug(data);
+                log.debug(data+"\n");
             }
             
             in.close();
             
         } catch (IOException ioe) {
             log.debug("getClosesDeal failed: " + ioe.getMessage());
-        }
-        
+        }*/
+
         return result;
     }
 
@@ -81,8 +87,32 @@ public class MerchantDealsLookUp {
      */
     private static int getKeywordID(String keyword) {
         int result = -1;
-        String keywordURL = "http://api.redflagdeals.com/api/tags/search/";
-        
+        String keywordURL = "http://api.redflagdeals.com/api/tags/search/" + keyword;
+
+        try {
+            URL url = new URL(keywordURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json");
+
+            int responseCode = conn.getResponseCode();
+
+            JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()));
+            JSONObject obj = new JSONObject(reader.readObject().toString());
+            
+            while(obj.keys().hasNext()){
+                log.debug(obj.keys().next().toString());
+            }
+
+            reader.close();
+
+        } catch (IOException ioe) {
+            log.debug("getClosesDeal failed: " + ioe.getMessage());
+        } catch (JSONException ex) {
+            java.util.logging.Logger.getLogger(MerchantDealsLookUp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         return result;
     }
 }
