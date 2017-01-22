@@ -60,6 +60,7 @@ public class TwitterBot {
                             twitter.updateStatus("@" + tweet.getUser().getScreenName() + " Hello again 2");
                             latestID = tweet.getId();
                             log.info("Tweeted at: " + tweet.getId() + " " + tweet.getUser().getScreenName());
+                            
                         }
                     }
 
