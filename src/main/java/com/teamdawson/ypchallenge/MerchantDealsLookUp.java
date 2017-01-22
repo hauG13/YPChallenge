@@ -18,7 +18,7 @@ import twitter4j.JSONObject;
  * Class that contains static method that will query either YellowPage or
  * ReflagDeal to find stores in proximity and its deals.
  *
- * @author Uen Yi Cindy Hung
+ * @author Uen Yi Cindy Hung, Thai-Vu Nguyen
  * @version 0.0.01
  * @since January 21st, 2017
  */
@@ -75,6 +75,52 @@ public class MerchantDealsLookUp {
 
         } catch (IOException ioe) {
             log.debug("getClosesDeal failed: " + ioe.getMessage());
+        } catch (JSONException ex) {
+            java.util.logging.Logger.getLogger(MerchantDealsLookUp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return result;
+    }
+    
+    /**
+     *
+     * Get the closest Merchant that has no deals on the key item
+     *
+     * @param latitude long
+     * @param longitude long
+     * @param keyword String
+     * @return Merchant object
+     */
+    public static Merchant getClosestStore(double latitude, double longitude, String keyword) {
+        Merchant result = null;
+        String urlPost = "http://hackaton.ypcloud.io/search";
+
+        try {
+            HttpURLConnection conn = preparePostRequest(urlPost);
+
+            String requestString = preparePostBody(latitude, longitude, keyword);
+
+            try (OutputStream out = conn.getOutputStream()) {
+                out.write(requestString.getBytes());
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                try (JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()))) {
+                    JSONObject obj = new JSONObject(reader.readObject().toString());
+                    log.debug(obj.toString());
+
+                    JSONObject data = obj.getJSONArray("searchResult")
+                            .getJSONObject(0).getJSONArray("merchants").getJSONObject(0);
+
+                    result = new Merchant();
+                    result.setStore(data.getString("businessName"));
+                }
+            }
+            log.debug("result merchant " + result.getStore());
+
+        } catch (IOException ioe) {
+            log.debug("getClosesStore failed: " + ioe.getMessage());
         } catch (JSONException ex) {
             java.util.logging.Logger.getLogger(MerchantDealsLookUp.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -158,52 +204,6 @@ public class MerchantDealsLookUp {
                 + "}]}";
 
         return requestString;
-    }
-
-    /**
-     *
-     * Get the closest Merchant that has no deals on the key item
-     *
-     * @param latitude long
-     * @param longitude long
-     * @param keyword String
-     * @return Merchant object
-     */
-    public static Merchant getClosestStore(double latitude, double longitude, String keyword) {
-        Merchant result = null;
-        String urlPost = "http://hackaton.ypcloud.io/search";
-
-        try {
-            HttpURLConnection conn = preparePostRequest(urlPost);
-
-            String requestString = preparePostBody(latitude, longitude, keyword);
-
-            try (OutputStream out = conn.getOutputStream()) {
-                out.write(requestString.getBytes());
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                try (JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()))) {
-                    JSONObject obj = new JSONObject(reader.readObject().toString());
-                    log.debug(obj.toString());
-
-                    JSONObject data = obj.getJSONArray("searchResult")
-                            .getJSONObject(0).getJSONArray("merchants").getJSONObject(0);
-
-                    result = new Merchant();
-                    result.setStore(data.getString("businessName"));
-                }
-            }
-            log.debug("result merchant " + result.getStore());
-
-        } catch (IOException ioe) {
-            log.debug("getClosesStore failed: " + ioe.getMessage());
-        } catch (JSONException ex) {
-            java.util.logging.Logger.getLogger(MerchantDealsLookUp.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return result;
     }
 
 }
