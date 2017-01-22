@@ -20,15 +20,15 @@ public class MerchantJsonParser {
      * 
      * Parse through a json to create a merchant object
      * 
-     * @param json
-     * @return 
+     * @param json String
+     * @return a store with a deal
      */
     public static Merchant parseNearestDealJson(String json){
         Merchant merchant = null;
         
         JsonParser parser = Json.createParser(new StringReader(json));
         boolean found = false;
-        while(parser.hasNext() && found == false)
+        while(parser.hasNext())
         {
             JsonParser.Event event = parser.next();
             
@@ -55,9 +55,42 @@ public class MerchantJsonParser {
                         }
                         found = true;
                     }
-                    
-                    
+                    break;
             }
+            
+            if (found == true)
+                break;
+        }
+        return merchant;
+    }
+    
+    /**
+     * 
+     * @param json String
+     * @return a Store with no deals
+     */
+    public static Merchant parseNearestStoreJson(String json){
+        Merchant merchant = null;
+        
+        JsonParser parser = Json.createParser(new StringReader(json));
+        boolean found = false;
+        while(parser.hasNext()){
+            JsonParser.Event event = parser.next();
+            
+            switch (event){
+                case KEY_NAME:
+                    if ("businessName".equals(parser.getString()))
+                    {
+                        parser.next();
+                        if (parser.getString() != null)
+                        {
+                            merchant = new Merchant();
+                            merchant.setStore(parser.getString());
+                        }
+                    }
+            }
+            if (found == true)
+                break;
         }
         return merchant;
     }
