@@ -10,7 +10,7 @@ import java.util.List;
  * @author Danieil Skrinikov
  * @author Hau Gilles Che
  * @version 0.0.01
- * @since
+ * @since 2017-01-21
  */
 public class Interpreter {
 
@@ -73,6 +73,18 @@ public class Interpreter {
             }
         }
         return keywords;
+    }
+    
+    /**
+     * -----Retrieves the latitude and longitude of a location
+     * Interprets a location based on inputted text.
+     * @param text String to extract and interpret location from.
+     * @return array containing the latitude and longitude
+     * of the specified location.
+     */
+    public static double[] interpretLocation(String text){
+        
+        return null;
     }
     
     /**
