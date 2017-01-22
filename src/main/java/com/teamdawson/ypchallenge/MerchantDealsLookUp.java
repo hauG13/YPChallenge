@@ -46,6 +46,8 @@ public class MerchantDealsLookUp {
         String result = null;
 
         int keywordID = getKeywordID(keyword);
+
+        log.debug("keyword id is: " + keywordID);
         /*
         if (keywordID != -1) {
             return null;
@@ -79,7 +81,7 @@ public class MerchantDealsLookUp {
     }
 
     /**
-     * Queries RedFlag API for tag keyword IDs.
+     * Queries RedFlag API to extract the tag keyword IDs from the JSON response.
      *
      * @param keyword
      *
@@ -100,9 +102,15 @@ public class MerchantDealsLookUp {
 
             JsonReader reader = Json.createReader(new InputStreamReader(conn.getInputStream()));
             JSONObject obj = new JSONObject(reader.readObject().toString());
-            
-            while(obj.keys().hasNext()){
-                log.debug(obj.keys().next().toString());
+
+            JSONArray array = obj.getJSONArray("data");
+
+            for (int i = 0; i < array.length(); i++) {
+                log.debug(array.getString(i) + "\n");
+                JSONObject sub = new JSONObject(array.getString(i)).getJSONObject("Translation").getJSONObject("en");
+                if (sub.get("slug").toString().equalsIgnoreCase(keyword)) {
+                    result = Integer.parseInt(sub.get("id").toString());
+                }
             }
 
             reader.close();
