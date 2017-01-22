@@ -5,13 +5,13 @@
  */
 package com.teamdawson.ypchallenge;
 
-import org.apache.http.client.methods.HttpPost;
-
 /**
  *
  * Merchant bean holding info of store name, deal and the link to the deal
  * 
  * @author Thai-vu Nguyen
+ * @version 0.0.01
+ * @since 2017-01-21
  */
 public class Merchant {
     private String store;
